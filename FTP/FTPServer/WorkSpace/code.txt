@@ -1,0 +1,28 @@
+早在1948年，香农就提出将信源符号依其出现的概率降序排序，用符号序列累计概率的二进值作为对芯源的编码，并从理论上论证了它的优越性。1960年， Peter Elias发现无需排序，只要编、解码端使用相同的符号顺序即可，提出了算术编码的概念。Elias没有公布他的发现，因为他知道算术编码在数学上虽然成 立，但不可能在实际中实现。1976年，R. Pasco和J. Rissanen分别用定长的寄存器实现了有限精度的算术编码。1979年Rissanen和G. G. Langdon一起将算术编码系统化，并于1981年实现了二进制编码。1987年Witten等人发表了一个实用的算术编码程序，即CACM87（后用 于ITU-T的H.263视频压缩标准）。同期，IBM公司发表了著名的Q-编码器（后用于JPEG和JBIG图像压缩标准）。从此，算术编码迅速得到了 广泛的注意。
+算术编码的基本原理是将编码的消息表示成实数0和1之间的一个间隔（Interval），消息越长，编码表示它的间隔就越小，表示这一间隔所需的二进制位就越多。
+算术编码用到两个基本的参数：符号的概率和它的编码间隔。信源符号的概率决定压缩编码的效率，也决定编码过程中信源符号的间隔，而这些间隔包含在0到1之间。编码过程中的间隔决定了符号压缩后的输出。
+给定事件序列的算术编码步骤如下：
+（1）编码器在开始时将“当前间隔” [ L， H) 设置为[0，1)。
+（2）对每一事件，编码器按步骤（a）和（b）进行处理
+（a）编码器将“当前间隔”分为子间隔，每一个事件一个。
+（b）一个子间隔的大小与下一个将出现的事件的概率成比例，编码器选择子间隔对应于下一个确切发生的事件相对应，并使它成为新的“当前间隔”。
+（3）最后输出的“当前间隔”的下边界就是该给定事件序列的算术编码。
+设Low和High分别表示“当前间隔”的下边界和上边界，CodeRange为编码间隔的长度，LowRange(symbol)和HighRange(symbol)分别代表为了事件symbol分配的初始间隔下边界和上边界。上述过程的实现可用伪代码描述如下：
+set Low to 0
+set High to 1
+while there are input symbols do
+    take a symbol
+    CodeRange = High – Low
+    High = Low + CodeRange *HighRange(symbol)
+    Low = Low + CodeRange * LowRange(symbol)
+end of while
+output Low
+算术码解码过程用伪代码描述如下：
+get encoded number
+do
+    find symbol whose range straddles the encoded number
+    output the symbol
+    range = symbo.LowValue – symbol.HighValue
+    substracti symbol.LowValue from encoded number
+    divide encoded number by range
+until no more symbols
